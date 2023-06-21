@@ -10,9 +10,6 @@ import wsgi
 # last slide uuid
 last_slide_uuid = None
 
-# refresh time
-refresh_time = 0.2
-
 
 def execute_triggers(triggers, is_current=True):
     for trigger in triggers:
@@ -93,10 +90,10 @@ def process_triggers(data):
         last_slide_uuid = data.get('current').get('uuid')
 
 
-def retry_checker():
+def retry_checker(propresenter_api_url="http://localhost:1025"):
     logging.info("Retrying listener in 1 second")
     time.sleep(1)
-    retry_checker()
+    check_for_changes(propresenter_api_url)
 
 
 def check_for_changes(propresenter_api_url="http://localhost:1025"):
@@ -110,7 +107,7 @@ def check_for_changes(propresenter_api_url="http://localhost:1025"):
     except Exception as e:
         logging.error("Error connecting to ProPresenter")
         print(e)
-        retry_checker()
+        retry_checker(propresenter_api_url)
 
     if response.encoding is None:
         response.encoding = 'utf-8'
@@ -132,7 +129,7 @@ def check_for_changes(propresenter_api_url="http://localhost:1025"):
                     data = ""
     except Exception as e:
         logging.error("ProPresenter API connection error")
-        retry_checker()
+        retry_checker(propresenter_api_url)
 
 
 def import_config():
