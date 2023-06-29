@@ -11,7 +11,8 @@ ProPresenter Triggers is Python console application that listens for triggers in
 
 ### Install
 1. Clone this repository or download the latest release
-2. Install dependencies: `pip install -r requirements.txt`
+2. Go to the `app` directory
+3. Install dependencies: `pip install -r requirements.txt`
 
 ## Usage
 ### Configuration
@@ -27,11 +28,11 @@ Create triggers in ProPresenter slide notes using the PTDL spec. See the [PTDL v
 This application has a built in REST API that accepts PTDL triggers sent in the body of a POST request. See [Postman Collection](https://documenter.getpostman.com/view/19380446/2s93z3fkm1) for examples/documentation.
 
 ## Supported Actions
-### `print_to_console`: input (string)
+### `PrintToConsole`: input (string)
 Prints a message to the console. Useful for testing. Accepts a value of type string to print to the console.
 
-### `hello`
-Prints "Hello World" to the console. Useful for testing.
+### `HelloWorld`
+Prints "Hello World!" to the console. Useful for testing.
 
 ## ProPresenter 3rd Party Trigger Definition Language (PTDL) v0.1
 ProPresenter 3rd Party Trigger Definition Language (PTDL) is a JSON-based language specification for defining triggers wthin ProPresenter notes. Designed for sending data over the ProPresenter API to listening clients by using the slide notes feature in ProPresenter.
@@ -44,7 +45,7 @@ PTDL v0.1 is a valid JSON object with a single property, `triggers`, which is an
 #### Trigger Object
 A trigger object is a JSON object with the following properties:
 - `type` (string): The type of trigger. Currently, only `action` is supported.
-- `key` (string): The key of the action to trigger. Keys are defined by the listening application. If the key is not recognized by the listening application, the trigger will be ignored.
+- `key` (string): The key of the action to trigger. Keys are defined by the listening application. If the key is not recognized by the listening application, the trigger will be ignored. Keys are case sensitive and should be camelCase.
 - `value` (string): The value to pass to the action. This is optional and may be omitted if the action does not require a value. Depending on the action the string can be a number, boolean, string, or JSON object.
 - `when_next` (boolean): If `true`, the action will be triggered if the trigger is present on the next slide. If `false` or omitted, the action will be triggered when the slide containing the trigger is shown.
 
@@ -54,16 +55,16 @@ A trigger object is a JSON object with the following properties:
   "triggers": [
     {
       "type": "action",
-      "key": "print_to_console",
+      "key": "PrintToConsole",
       "value": "Test Message"
     },
     {
       "type": "action",
-      "key": "hello"
+      "key": "HelloWorld"
     },
     {
       "type": "action",
-      "key": "print_to_console",
+      "key": "PrintToConsole",
       "value": "I'm next.",
       "when_next": true
     }

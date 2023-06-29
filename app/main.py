@@ -1,11 +1,11 @@
 import threading
 import logging
 import requests
-from actions import *
 import time
 import json
 import waitress
 import wsgi
+from app.utils import load_class_and_initialize
 
 # last slide uuid
 last_slide_uuid = None
@@ -28,13 +28,10 @@ def execute_triggers(triggers, is_current=True):
             # if is_current is True and trigger_when_next is False, execute this trigger
             # if is_current is False and trigger_when_next is True, execute this trigger
             if trigger_type == "action":
-                action_function = globals().get(trigger_key)
-                if action_function:
-                    # if action function accepts a parameter
-                    if action_function.__code__.co_argcount == 1:
-                        action_function(trigger_value)
-                    else:
-                        action_function()
+                # create object of action's class
+                new_object = load_class_and_initialize(trigger_key, trigger_value)
+                # run the run method of the action's class
+                new_object.run()
         except Exception as e:
             logging.error("Invalid trigger")
     return True

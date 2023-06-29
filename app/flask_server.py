@@ -1,6 +1,5 @@
 from flask import Flask, render_template, request, jsonify
 from main import execute_triggers
-from actions import *
 import logging
 import json
 
