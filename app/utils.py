@@ -1,14 +1,17 @@
 import os
+import json
+import logging
 import importlib.util
 
-"""
-Method name: load_class_and_initialize
-Description: load class locate in actions folder and initialize it
-@:param key: action key - file and class name
-@:param value: action value - parameter to pass to action's constructor
-@:return: object of action class
-"""
+
 def load_class_and_initialize(key, value):
+    """
+    Method name: load_class_and_initialize
+    Description: load class locate in actions folder and initialize it
+    @param key: action key - file and class name
+    @param value: action value - parameter to pass to action's constructor
+    @return: object of action class
+    """
     try:
         # create path to python file
         path_to_module = os.path.join('.', 'actions', f'{key}.py')
@@ -30,4 +33,18 @@ def load_class_and_initialize(key, value):
         return new_object
     except Exception as e:
         print(e)
+        return None
+
+
+def import_config():
+    """
+    Method name: import_config
+    Description: import config.json file
+    @return: config.json file as dictionary
+    """
+    try:
+        with open("config.json") as f:
+            return json.load(f)
+    except Exception as e:
+        logging.error("Error importing config file")
         return None

@@ -6,6 +6,7 @@ import json
 import waitress
 import wsgi
 from app.utils import load_class_and_initialize
+from app.utils import import_config
 
 # last slide uuid
 last_slide_uuid = None
@@ -90,10 +91,10 @@ def process_triggers(data):
 def retry_checker(propresenter_api_url="http://localhost:1025"):
     logging.info("Retrying listener in 1 second")
     time.sleep(1)
-    check_for_changes(propresenter_api_url)
+    check_for_slide_changes(propresenter_api_url)
 
 
-def check_for_changes(propresenter_api_url="http://localhost:1025"):
+def check_for_slide_changes(propresenter_api_url="http://localhost:1025"):
     if propresenter_api_url[-1] != "/":
         propresenter_api_url += "/"
     propresenter_api_url += "v1/status/slide?chunked=true"
@@ -129,15 +130,6 @@ def check_for_changes(propresenter_api_url="http://localhost:1025"):
         retry_checker(propresenter_api_url)
 
 
-def import_config():
-    try:
-        with open("config.json") as f:
-            return json.load(f)
-    except Exception as e:
-        logging.error("Error importing config file")
-        return None
-
-
 def run_flask():
     # Running waitress server to serve flask app
     waitress.serve(wsgi.app, listen='*:1027')
@@ -154,7 +146,7 @@ if __name__ == "__main__":
     # Creating threads
     flask_thread = threading.Thread(target=run_flask)
     flask_thread.start()
-    checker_thread = threading.Thread(target=check_for_changes(config_file.get('PROPRESENTER_API_URL')))
+    checker_thread = threading.Thread(target=check_for_slide_changes(config_file.get('PROPRESENTER_API_URL')))
 
     # Starting threads
     checker_thread.start()
