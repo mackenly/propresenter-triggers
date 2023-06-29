@@ -1,0 +1,46 @@
+# PrintToConsole
+
+Prints an input string value to the server's console. Useful for logging, debugging, and testing.
+
+## Usage
+```json filename="PTDL.json"
+{
+  "triggers": [
+    {
+      "type": "action",
+      "key": "PrintToConsole",
+      "value": "Test Message"
+    },
+    {
+      "type": "action",
+      "key": "PrintToConsole",
+      "value": "I'm next.",
+      "when_next": true
+    }
+  ]
+}
+```
+
+## Implementation
+```python
+class PrintToConsole:
+    """
+    Class name: PrintToConsole
+    Class description: Provide users with the ability to print the server console
+    """
+    def __init__(self, message):
+        """
+        Method name: __init__
+        Method description: Constructor for PrintToConsole
+        @param message: message to be printed to the console
+        """
+        self.message = message or ''
+
+    def run(self):
+        """
+        Method name: run
+        Method description: runner for PrintToConsole class
+        """
+        print(self.message)
+
+```

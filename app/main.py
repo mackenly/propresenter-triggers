@@ -34,7 +34,7 @@ def execute_triggers(triggers, is_current=True):
                 # run the run method of the action's class
                 new_object.run()
         except Exception as e:
-            logging.error("Invalid trigger")
+            logging.error(f'Invalid trigger: {e}')
     return True
 
 
@@ -88,7 +88,7 @@ def process_triggers(data):
         last_slide_uuid = data.get('current').get('uuid')
 
 
-def retry_checker(propresenter_api_url="http://localhost:1025"):
+def retry_checker(propresenter_api_url):
     logging.info("Retrying listener in 1 second")
     time.sleep(1)
     check_for_slide_changes(propresenter_api_url)

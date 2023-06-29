@@ -1,18 +1,14 @@
 {
-    "index": "README",
-    "Repository": {
-        "title": "GitHub Repository",
-        "href": "https://github.com/mackenly/propresenter-triggers/",
-        "newWindow": true
-    },
-    "license": {
-        "title": "MIT License",
-        "href": "https://github.com/mackenly/propresenter-triggers/blob/main/LICENSE",
-        "newWindow": true
-    },
+    "index": "Home",
+    "getting-started": "Getting Started",
+    "actions": "Actions",
+    "ptdl": "PTDL v0.1",
+    "developers": "Developer Docs",
+    "api-docs": "API Docs",
     "Sponsor": {
-        "title": "Sponsor Developer",
+        "title": "Sponsor Project",
         "href": "https://github.com/sponsors/mackenly",
-        "newWindow": true
+        "newWindow": true,
+        "type": "page"
     }
 }

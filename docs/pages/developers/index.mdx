@@ -1,0 +1,103 @@
+# Build Custom Actions
+
+Actions provide the key functionality for the ProPresenter Triggers application. Within the `./actions/` directory of the app you'll find the files that define the classes used to create the actions' functionality.
+
+Actions at their core are just Python classes. The constructor instantiates the class as an object and sets the initial state. The `run()` method is called when the action is triggered.
+
+## State
+Actions receive state from PTDL trigger values via a parameter. This state is a string that can be a single value or a JSON object. It's up to the action to parse the state and use it as needed. Here's an example:
+```python copy
+import json
+class Example:
+    def __init__(self, value):
+        # Parse json value
+        self.value = json.loads(value)
+```
+
+
+In addition to the action's parameter, actions can also get data from the `config.json` file in the app's root directory. This is useful for storing data that is used across multiple instances of an action such as:
+- An API key used to call an endpoint
+- A magic value used within the action's logic
+- etc...
+
+To use a config data import the `import_config()` method from the `utils` module. This will return a dictionary of the config data. The dictionary can then be accessed like any other dictionary.
+
+```python copy
+from app.utils import import_config
+```
+
+Then call the method from your code. For example:    
+```python copy
+self.config = import_config().get('actions')['Example'] or ""
+```
+
+## Logging
+This project uses the `logging` package to log messages to the console. The `logging` package is part of the Python standard library and is used to log messages to the console. The `logging` package has a number of built-in methods for logging messages at different levels. The levels are:
+- `DEBUG`: Detailed information, typically of interest only when diagnosing problems.
+- `INFO`: Confirmation that things are working as expected.
+- `WARNING`: An indication that something unexpected happened, or indicative of some problem in the near future (e.g. ‘disk space low’). The software is still working as expected.
+- `ERROR`: Due to a more serious problem, the software has not been able to perform some function.
+- `CRITICAL`: A serious error, indicating that the program itself may be unable to continue running.
+
+As normal you can import the logging package then call the `logging` methods to log messages. For example:
+```python copy
+import logging
+logging.debug('This is a debug message')
+logging.info('This is an info message')
+logging.warning('This is a warning message')
+logging.error('This is an error message')
+logging.critical('This is a critical message')
+```
+
+## Example Action
+Within the `./actions/` directory you'll find an example action called `Example.py`. This action is a good starting point for creating your own actions. It has a number of comments that explain how the action works.
+
+Find the most up to date version [here](https://github.com/mackenly/propresenter-triggers/blob/main/app/actions/Example.py) and/or copy the code below:
+```python copy filename="Example.py"
+import logging
+from app.utils import import_config
+
+
+class Example:
+    """
+    Class name: Example
+    Class description: Example class showing the capabilities
+        of the plugin system including getting data from the
+        config.json file and accepting parameters.
+    """
+    def __init__(self, value='Default Thingy'):
+        """
+        Method name: __init__
+        Method description: Constructor for Example class
+        @param value: value to print
+        """
+        # Use the value passed in as a parameter (if any) or the default value
+        self.value = value
+        
+        # Get the config value from the config.json file or an empty string
+        self.config = import_config().get('actions')['Example'] or ""
+
+    def run(self):
+        """
+        Method name: run
+        Method description: Runner method that prints "Hello from Example action!" plus the value and config
+        """
+        # Print to the console
+        print('Hello from Example action!\n' + self.value + "\n" + self.config)
+        
+        # Log to the server console
+        logging.info('Hello from Example action! ' + self.value + " " + self.config)
+
+```
+
+## Using Your Action
+This project uses a markup language called ProPresenter 3rd Party Trigger Definition Language (PTDL) which is designed for allowing users of ProPresenter to define triggers using slide and presentation notes.
+
+Your action's key is the name of the file/class and the value can be any string. The string will be passed to the action's constructor as a parameter.
+
+## Submitting Actions
+You're welcome to use your custom actions locally simply by placing your action's file in the `./actions/` directory and making calls using PTDL, but if you'd like to submit them to be included in the ProPresenter Triggers app for other users to use, please submit a pull request to the [GitHub repo](https://github.com/mackenly/propresenter-triggers/blob/main/app/actions/Example.py).
+
+All submissions will be reviewed and if relevant and appropriate will be included in the app.
+
+Any code submitted to the repo will be licensed under the [project's license](https://github.com/mackenly/propresenter-triggers/blob/main/LICENSE), so make sure you have permission to submit the code before doing so.

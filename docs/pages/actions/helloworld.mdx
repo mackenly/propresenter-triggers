@@ -1,3 +1,26 @@
+# HelloWorld
+
+Prints "Hello World!" to the server's console. Useful for testing purposes.
+
+## Usage
+```json filename="PTDL.json"
+{
+  "triggers": [
+    {
+      "type": "action",
+      "key": "HelloWorld"
+    },
+    {
+      "type": "action",
+      "key": "HelloWorld",
+      "when_next": true
+    }
+  ]
+}
+```
+
+## Implementation
+```python
 class HelloWorld:
     """
     Class name: HelloWorld
@@ -16,3 +39,5 @@ class HelloWorld:
         Method description: Runner method that prints "Hello World!"
         """
         print("Hello World!")
+
+```

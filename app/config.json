@@ -1,6 +1,6 @@
 {
   "PROPRESENTER_API_URL": "http://localhost:1025",
-  "plugins": {
+  "actions": {
     "Example": "Hello from config.json!"
   }
 }

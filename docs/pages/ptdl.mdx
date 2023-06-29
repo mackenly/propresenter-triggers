@@ -1,0 +1,37 @@
+# ProPresenter 3rd Party Trigger Definition Language (PTDL) v0.1
+ProPresenter 3rd Party Trigger Definition Language (PTDL) is a JSON-based language specification for defining triggers wthin ProPresenter notes. Designed for sending data over the ProPresenter API to listening clients by using the slide notes feature in ProPresenter.
+
+This specification has been created primarily for use with this project, but is designed to be flexible enough to be used by other applications and may evolve over time into a standalone specification.
+
+### PTDL v0.1 Specification
+PTDL v0.1 is a valid JSON object with a single property, `triggers`, which is an array of trigger objects. Additional properties may be added to the root object in future versions of PTDL or by other applications.
+
+#### Trigger Object
+A trigger object is a JSON object with the following properties:
+- `type` (string): The type of trigger. Currently, only `action` is supported.
+- `key` (string): The key of the action to trigger. Keys are defined by the listening application. If the key is not recognized by the listening application, the trigger will be ignored. Keys are case sensitive and should be camelCase.
+- `value` (string): The value to pass to the action. This is optional and may be omitted if the action does not require a value. Depending on the action the string can be a number, boolean, string, or JSON object.
+- `when_next` (boolean): If `true`, the action will be triggered if the trigger is present on the next slide. If `false` or omitted, the action will be triggered when the slide containing the trigger is shown.
+
+#### Example of PTDL v0.1
+```json copy filename="PTDL Example"
+{
+  "triggers": [
+    {
+      "type": "action",
+      "key": "PrintToConsole",
+      "value": "Test Message"
+    },
+    {
+      "type": "action",
+      "key": "HelloWorld"
+    },
+    {
+      "type": "action",
+      "key": "PrintToConsole",
+      "value": "I'm next.",
+      "when_next": true
+    }
+  ]
+}
+```
