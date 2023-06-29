@@ -1,0 +1,18 @@
+{
+    "index": "README",
+    "Repository": {
+        "title": "GitHub Repository",
+        "href": "https://github.com/mackenly/propresenter-triggers/",
+        "newWindow": true
+    },
+    "license": {
+        "title": "MIT License",
+        "href": "https://github.com/mackenly/propresenter-triggers/blob/main/LICENSE",
+        "newWindow": true
+    },
+    "Sponsor": {
+        "title": "Sponsor Developer",
+        "href": "https://github.com/sponsors/mackenly",
+        "newWindow": true
+    }
+}
