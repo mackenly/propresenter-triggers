@@ -1,5 +1,7 @@
 {
     "index": "Overview",
     "helloworld": "HelloWorld",
-    "printtoconsole": "PrintToConsole"
+    "printtoconsole": "PrintToConsole",
+    "request": "Request",
+    "discord": "Discord"
 }
