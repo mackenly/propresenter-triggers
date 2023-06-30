@@ -25,7 +25,7 @@ def load_class_and_initialize(key, value):
         class_ = getattr(module, key)
 
         # if object accepts 1 parameter, pass value to constructor
-        if len(class_.__init__.__code__.co_varnames) == 2:
+        if len(class_.__init__.__code__.co_varnames) >= 2:
             new_object = class_(value)
         else:
             new_object = class_()

@@ -1,0 +1,120 @@
+import Image from 'next/image'
+import { Steps } from 'nextra-theme-docs'
+
+import DiscordChannels from '../images/discord-channels.png'
+import DiscordIntegrations from '../images/discord-integrations.png'
+import DiscordWebhooks from '../images/discord-webhooks.png'
+import DiscordCreateWebhook from '../images/discord-create-webhook.png'
+import DiscordCopyURL from '../images/discord-copy-url.png'
+
+# Discord
+
+Sends messages to a Discord channel using a webhook.
+
+## Setup
+To use this action you'll need to do some setup on Discord's end. 
+
+<Steps>
+### Step 1 - Select Channel
+Go to your Discord server and click on the settings icon next to the channel you want to send messages to.
+
+<Image src={DiscordChannels} alt="Discord Channels" width={200} height={100} />
+
+### Step 2 - Create Webhook
+Click on the "Integrations" tab
+
+<Image src={DiscordIntegrations} alt="Discord Integrations" width={200} height={100} />
+
+Then click on "View Webhooks"
+<Image src={DiscordWebhooks} alt="Discord Webhooks" width={600} height={100} />
+
+Now click "Create Webhook"
+<Image src={DiscordCreateWebhook} alt="Discord Create Webhook" width={150} height={100} />
+
+### Step 3 - Copy URL
+Expand your newly created webhook and copy the URL.
+From here you can also change your bot's name, profile photo, and the channel it sends messages to.
+<Image src={DiscordCopyURL} alt="Discord Copy URL" width={600} height={100} />
+
+### Step 4 - Create message
+Now that you have your webhook URL, you can create a message to send to your Discord channel. 
+If you're a regular Discord user, you're probably familiar with the [syntax for bolding text, italicizing text, etc](https://birdie0.github.io/discord-webhooks-guide/other/discord_markdown.html). 
+However, the markup for the webhook content is a bit different. This section of the Discord documentation explains the [syntax for tagging users, channels, and roles](https://discord.com/developers/docs/reference#message-formatting). 
+Here's a quick overview:
+- To tag a user, use `<@USER_ID>`
+- To tag a channel, use `<#CHANNEL_ID>`
+- To tag a role, use `<@&ROLE_ID>`
+
+These various IDs can be found by right-clicking on the user, channel tab, or role badge and selecting "Copy ID".
+
+</Steps>
+
+## Usage
+
+```json copy filename="PTDL.json"
+{
+    "triggers": [
+        {
+            "type": "action",
+            "key": "Discord",
+            "value": {
+                "webhook_url": "https://discord.com/api/webhooks/0000000000000000/wfeiurbvtrligutgiu",
+                "message": "Hey <@000000000000000000>, this is a test message!"
+            }
+        },
+        {
+            "type": "action",
+            "key": "Discord",
+            "value": {
+                "webhook_url": "https://discord.com/api/webhooks/00000000000000000/er3t5v4635g4rrt8",
+                "message": "Hey <@00000000000000000>, this is a test message!"
+            },
+            "when_next": true
+        }
+    ]
+}
+```
+
+## Implementation
+
+```python
+import logging
+import requests
+
+class Discord:
+    """
+    Class name: Discord
+    Class description: Send a message to a Discord channel via webhook
+    Example value:
+    {
+        "webhook_url": "https://discord.com/api/webhooks/00000000000000000/er3t5v4635g4rrt8",
+        "message": "Hey <@00000000000000000>, this is a test message!"
+    }
+    """
+    def __init__(self, value):
+        """
+        Method name: __init__
+        Method description: Constructor for Discord class
+        @param value: value used to define Discord message
+        """
+        if value is None:
+            logging.error('Value is required for Discord action')
+            return
+        try:
+            self.value = value
+            self.webhook_url = value.get('webhook_url') or ''
+            self.message = value.get('message') or ''
+        except Exception as e:
+            logging.error('Value must be a valid JSON object for Discord action ' + str(e))
+            return
+
+    def run(self):
+        try:
+            response = requests.post(
+                url=self.webhook_url,
+                json={"content": self.message}
+            )
+            return
+        except Exception as e:
+            logging.error('Discord action failed: ' + str(e))
+```
