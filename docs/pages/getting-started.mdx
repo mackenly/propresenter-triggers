@@ -48,11 +48,17 @@ It's as easy as putting your JSON PTDL code into the note field within ProPresen
     {
       "type": "action",
       "key": "PrintToConsole",
-      "value": "Test Message"
+      "value": "Test Message",
+      "delay": 2000
     },
     {
       "type": "action",
-      "key": "HelloWorld"
+      "key": "HelloWorld",
+      "then": {
+        "type": "action",
+        "key": "PrintToConsole",
+        "value": "I was printed after HelloWorld."
+      }
     },
     {
       "type": "action",

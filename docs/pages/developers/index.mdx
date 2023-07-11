@@ -1,8 +1,19 @@
+import { Callout } from 'nextra/components'
+
 # Build Custom Actions
 
 Actions provide the key functionality for the ProPresenter Triggers application. Within the `./actions/` directory of the app you'll find the files that define the classes used to create the actions' functionality.
 
 Actions at their core are just Python classes. The constructor instantiates the class as an object and sets the initial state. The `run()` method is called when the action is triggered.
+
+<Callout type="info" emoji="❕">
+    A future version will rework actions to require values to be passed directly into the `run()` method. This will allow for more flexibility and will allow actions to be used in more ways such as for defining listeners. After this change, constructors will no longer be used to pass in state for each action call.
+</Callout>
+
+## Abstract Action Class
+The `Action` class is an abstract class that all actions must inherit from. This class provides the outline for the action's functionality. The `Action` class is defined in the `./actions/Action.py` file. The `Action` class has two methods that must be implemented by the action's class:
+- `__init__`: The constructor for the action's class. This method is called when the action is instantiated. The constructor can accept parameters that are passed in from the trigger using the `value` parameter. The constructor can also be used to hard code any initial state needed by the action.
+- `run`: The method that is called when the action is triggered. This method doesn't currently accept any parameters. This method is called when the action is triggered.
 
 ## State
 Actions receive state from PTDL trigger values via a parameter. This state is a string that can be a single value or a JSON object. It's up to the action to parse the state and use it as needed. Here's an example:
@@ -39,6 +50,10 @@ This project uses the `logging` package to log messages to the console. The `log
 - `ERROR`: Due to a more serious problem, the software has not been able to perform some function.
 - `CRITICAL`: A serious error, indicating that the program itself may be unable to continue running.
 
+<Callout type="warning" emoji="⚠️">
+  Logging is great for sending logs to the console, but should not be used for crticial or fatal exceptions. See the [Exceptions](#exceptions) section for more information.
+</Callout>
+
 As normal you can import the logging package then call the `logging` methods to log messages. For example:
 ```python copy
 import logging
@@ -49,22 +64,42 @@ logging.error('This is an error message')
 logging.critical('This is a critical message')
 ```
 
+## Exceptions
+Exceptions must be raised up to the calling function and not caught within the class. By throwing or rasing excptions up past the action's class, the app can catch the exception and handle it appropriately. If an exception is not raised to the calling function, the action may result in unanticipated behavior when using sequenced or chained triggers.
+
+This doesn't mean that you can't use try/except blocks. Instead, just make sure that you raise the exception up to the calling function if you can't handle it automatically within the class.
+
+To simplify this process, the `utils` module includes an exception class called `ActionError`. This class can be imported and used to raise exceptions related to actions. For example:
+```python copy
+from app.utils import ActionError
+
+raise ActionError('This is an exception message')
+```
+`ActionError` takes a single parameter which is the exception message. This message will be logged to the console and displayed to the user in the app as an error. Additionally, any chained or sequenced triggers will be stopped.
+
+When should you not raise an exception? If you're using a try/except block to catch an exception and can fully handle it within the action, you should not raise the exception. Instead, you should handle the exception within the try/except block. Only raise an exception past your class when the class experiences a fatal or crticial error that cannot be handled within the class.
+
+By rasing fatal or critical errors above the class level users can be notified of the error and the app can stop any chained or sequenced triggers.
+
 ## Example Action
 Within the `./actions/` directory you'll find an example action called `Example.py`. This action is a good starting point for creating your own actions. It has a number of comments that explain how the action works.
 
 Find the most up to date version [here](https://github.com/mackenly/propresenter-triggers/blob/main/app/actions/Example.py) and/or copy the code below:
 ```python copy filename="Example.py"
 import logging
+from app.actions.Action import Action
 from app.utils import import_config
+from app.utils import ActionError
 
 
-class Example:
+class Example(Action):
     """
     Class name: Example
     Class description: Example class showing the capabilities
         of the plugin system including getting data from the
         config.json file and accepting parameters.
     """
+
     def __init__(self, value='Default Thingy'):
         """
         Method name: __init__
@@ -73,7 +108,23 @@ class Example:
         """
         # Use the value passed in as a parameter (if any) or the default value
         self.value = value
-        
+
+        # See how to throw an exceptions by setting the value to "Test" or "Ronald"
+        if self.value == "Test" or self.value == "Ronald":
+            # Demonstrate how to raise an exception
+            if self.value == "Ronald":
+                raise ActionError("Ronald isn't allowed")
+
+            # Demonstrate try/except
+            try:
+                # this will always fail
+                print(1 / 0)
+            except Exception as e:
+                # You can log to the server console
+                logging.info('You can\'t divide by zero')
+                # Then raise an exception to block the action
+                raise ActionError('Example try/except error: ' + str(e))
+
         # Get the config value from the config.json file or an empty string
         self.config = import_config().get('actions')['Example'] or ""
 
@@ -84,14 +135,14 @@ class Example:
         """
         # Print to the console
         print('Hello from Example action!\n' + self.value + "\n" + self.config)
-        
+
         # Log to the server console
         logging.info('Hello from Example action! ' + self.value + " " + self.config)
 
 ```
 
 ## Using Your Action
-This project uses a markup language called ProPresenter 3rd Party Trigger Definition Language (PTDL) which is designed for allowing users of ProPresenter to define triggers using slide and presentation notes.
+This project uses a markup language called [ProPresenter 3rd Party Trigger Definition Language](./ptdl) (PTDL) which is designed for allowing users of ProPresenter to define triggers using slide and presentation notes.
 
 Your action's key is the name of the file/class and the value can be any string. The string will be passed to the action's constructor as a parameter.
 

@@ -1,8 +1,10 @@
 import logging
+from app.actions.Action import Action
 from app.utils import import_config
+from app.utils import ActionError
 
 
-class Example:
+class Example(Action):
     """
     Class name: Example
     Class description: Example class showing the capabilities
@@ -18,6 +20,22 @@ class Example:
         """
         # Use the value passed in as a parameter (if any) or the default value
         self.value = value
+
+        # See how to throw an exceptions by setting the value to "Test" or "Ronald"
+        if self.value == "Test" or self.value == "Ronald":
+            # Demonstrate how to raise an exception
+            if self.value == "Ronald":
+                raise ActionError("Ronald isn't allowed")
+
+            # Demonstrate try/except
+            try:
+                # this will always fail
+                print(1 / 0)
+            except Exception as e:
+                # You can log to the server console
+                logging.info('You can\'t divide by zero')
+                # Then raise an exception to block the action
+                raise ActionError('Example try/except error: ' + str(e))
 
         # Get the config value from the config.json file or an empty string
         self.config = import_config().get('actions')['Example'] or ""

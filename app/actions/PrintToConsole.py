@@ -1,4 +1,7 @@
-class PrintToConsole:
+from app.actions.Action import Action
+
+
+class PrintToConsole(Action):
     """
     Class name: PrintToConsole
     Class description: Provide users with the ability to print the server console
