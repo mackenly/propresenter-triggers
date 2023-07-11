@@ -6,12 +6,22 @@ This specification has been created primarily for use with this project, but is 
 ### PTDL v0.1 Specification
 PTDL v0.1 is a valid JSON object with a single property, `triggers`, which is an array of trigger objects. Additional properties may be added to the root object in future versions of PTDL or by other applications.
 
+#### Features
+- Each trigger is a standalone object.
+- Mutiple types may be supported in the future.
+- Actions can recieve keys and values.
+- Delays, allowing actions to be triggered after a specified amount of time (in milliseconds).
+- Chaining triggers together using the `then` property, allowing multiple actions to be triggered in sequence.
+- Chained triggers are atomic and will not be triggered if the parent trigger results in an exception, however if the parent trigger is a in and of itself a child trigger, the parent's parent trigger will still be triggered (unless it results in an exception). If at any point in the chain an action results in an error, it will stop where it is at and not continue to the next trigger in the chain.
+
 #### Trigger Object
 A trigger object is a JSON object with the following properties:
 - `type` (string): The type of trigger. Currently, only `action` is supported.
 - `key` (string): The key of the action to trigger. Keys are defined by the listening application. If the key is not recognized by the listening application, the trigger will be ignored. Keys are case sensitive and should be camelCase.
 - `value` (string): The value to pass to the action. This is optional and may be omitted if the action does not require a value. Depending on the action the string can be a number, boolean, string, or JSON object.
+- `delay` (integer): The number of milliseconds to delay before triggering the action. This is optional and may be omitted if the action should be triggered immediately.
 - `when_next` (boolean): If `true`, the action will be triggered if the trigger is present on the next slide. If `false` or omitted, the action will be triggered when the slide containing the trigger is shown.
+- `then` (`<Trigger Object>`): A trigger object to be triggered after the parent trigger. This is optional and may be omitted if no additional triggers should be triggered after the current trigger. By default triggers are executed asynchronously using threads. If the parent trigger results in an exception no child triggers will be ran. This feature can be powerful if the parent's trigger has a delay and/or if you want to execute multiple actions in sequence. Child trigger objects behave just like regular trigger objects, so there's no set limit to the number of child triggers that can be chained together.
 
 #### Example of PTDL v0.1
 ```json copy filename="PTDL Example"
@@ -20,11 +30,17 @@ A trigger object is a JSON object with the following properties:
     {
       "type": "action",
       "key": "PrintToConsole",
-      "value": "Test Message"
+      "value": "Test Message",
+      "delay": 2000
     },
     {
       "type": "action",
-      "key": "HelloWorld"
+      "key": "HelloWorld",
+      "then": {
+        "type": "action",
+        "key": "PrintToConsole",
+        "value": "I was printed after HelloWorld."
+      }
     },
     {
       "type": "action",

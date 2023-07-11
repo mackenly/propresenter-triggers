@@ -1,9 +1,10 @@
 import json
-import logging
 import requests
+from app.actions.Action import Action
+from app.utils import ActionError
 
 
-class Request:
+class Request(Action):
     """
     Class name: Request
     Class description: Send a request to a URL
@@ -27,8 +28,7 @@ class Request:
         @param value: value used to define request
         """
         if value is None:
-            logging.error('Value is required for Request action')
-            return
+            raise ActionError('Value is required for Request action')
         try:
             self.value = value
             self.url = value.get('url') or ''
@@ -36,8 +36,7 @@ class Request:
             self.headers = value.get('headers') or {}
             self.body = value.get('body') or {}
         except Exception as e:
-            logging.error('Value must be a valid JSON object for Request action ' + str(e))
-            return
+            raise ActionError('Value must be a valid JSON object for Request action ' + str(e))
 
     def run(self):
         """
@@ -51,8 +50,6 @@ class Request:
                 headers=self.headers,
                 data=self.body
             )
-            logging.info("Request response: " + json.loads(response.text))
-            return
+            raise ActionError("Request response: " + json.loads(response.text))
         except Exception as e:
-            logging.error('Request action failed: ' + str(e))
-            return
+            raise ActionError('Request action failed: ' + str(e))

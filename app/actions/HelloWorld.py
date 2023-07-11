@@ -1,4 +1,7 @@
-class HelloWorld:
+from app.actions.Action import Action
+
+
+class HelloWorld(Action):
     """
     Class name: HelloWorld
     Class description: Class used for testing that prints "Hello World!"

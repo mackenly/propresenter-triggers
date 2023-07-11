@@ -5,20 +5,34 @@ import time
 import json
 import waitress
 import wsgi
-from app.utils import load_class_and_initialize
+from app.utils import trigger_thread
 from app.utils import import_config
 
 # last slide uuid
 last_slide_uuid = None
 
+# last slide notes
+config_file = import_config()
+
+# retry count
+retry_count = 0
+
 
 def execute_triggers(triggers, is_current=True):
+    """
+    Method name: execute_triggers
+    Description: execute triggers passed as parameter
+    @param triggers: triggers to execute
+    @param is_current: if True, execute only triggers with when_next = False or not present
+    """
     for trigger in triggers:
         # print(trigger)
         try:
             trigger_type = trigger.get("type") or "action"
             trigger_key = trigger.get("key")
             trigger_value = trigger.get("value") or ""
+            trigger_delay = trigger.get("delay") or 0
+            trigger_then = trigger.get("then") or None
             trigger_when_next = trigger.get("when_next") or False
             # if is_current is True and trigger_when_next is True, skip this trigger
             if is_current and trigger_when_next:
@@ -30,15 +44,25 @@ def execute_triggers(triggers, is_current=True):
             # if is_current is False and trigger_when_next is True, execute this trigger
             if trigger_type == "action":
                 # create object of action's class
-                new_object = load_class_and_initialize(trigger_key, trigger_value)
-                # run the run method of the action's class
-                new_object.run()
+                # trigger_thread(trigger_key, trigger_value, trigger_delay, trigger_then)
+                thread = threading.Thread(
+                    target=trigger_thread,
+                    args=(trigger_key, trigger_value, trigger_delay, trigger_then)
+                )
+                thread.start()
         except Exception as e:
             logging.error(f'Invalid trigger: {e}')
     return True
 
 
 def process_triggers(data):
+    """
+    Method name: process_triggers
+    Process triggers by comparing current slide uuid with last slide uuid,
+    if they are different, process triggers from the notes of the current and next slide
+    @param data: data from ProPresenter API
+    """
+
     """
     Sample data:
     {
@@ -89,8 +113,15 @@ def process_triggers(data):
 
 
 def retry_checker(propresenter_api_url):
-    logging.info("Retrying listener in 1 second")
-    time.sleep(1)
+    global retry_count
+    delay = 1
+    retry_count += 1
+    if retry_count > 10:
+        delay = 5
+    elif retry_count > 3:
+        delay = 3
+    logging.info(f'Retrying listener in {delay} second(s)')
+    time.sleep(delay)
     check_for_slide_changes(propresenter_api_url)
 
 
@@ -98,14 +129,20 @@ def check_for_slide_changes(propresenter_api_url="http://localhost:1025"):
     if propresenter_api_url[-1] != "/":
         propresenter_api_url += "/"
     propresenter_api_url += "v1/status/slide?chunked=true"
+    response = None
     try:
         response = requests.get('http://localhost:1025/v1/status/slide?chunked=true', headers={
             "accept": "application/json",
         }, stream=True)
     except Exception as e:
-        logging.error("Error connecting to ProPresenter")
-        print(e)
+        logging.error("Error connecting to ProPresenter: " + str(e))
         retry_checker(propresenter_api_url)
+
+    # reset retry count
+    global retry_count
+    if retry_count > 0:
+        logging.info("ProPresenter API connection restored")
+    retry_count = 0
 
     if response.encoding is None:
         response.encoding = 'utf-8'
@@ -131,13 +168,19 @@ def check_for_slide_changes(propresenter_api_url="http://localhost:1025"):
 
 
 def run_flask():
-    # Running waitress server to serve flask app
-    waitress.serve(wsgi.app, listen='*:1027')
+    """
+    Method name: run_flask
+    Description: run flask app using waitress to serve the API
+    Default port is 1027
+    """
+    try:
+        waitress.serve(wsgi.app, listen='*:1027')
+    except Exception as e:
+        logging.error("Error running API server")
+        print(e)
 
 
 if __name__ == "__main__":
-    config_file = import_config()
-
     # Logging Config
     log_format = "%(asctime)s: %(message)s"
     logging.basicConfig(format=log_format, level=logging.INFO,
