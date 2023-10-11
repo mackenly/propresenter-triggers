@@ -131,7 +131,7 @@ def check_for_slide_changes(propresenter_api_url="http://localhost:1025"):
     propresenter_api_url += "v1/status/slide?chunked=true"
     response = None
     try:
-        response = requests.get('http://localhost:1025/v1/status/slide?chunked=true', headers={
+        response = requests.get(propresenter_api_url, headers={
             "accept": "application/json",
         }, stream=True)
     except Exception as e:
